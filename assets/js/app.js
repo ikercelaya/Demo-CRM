@@ -69,7 +69,9 @@
     { g: 'Atención' },
     { id: 'conversaciones', icon: '💬', label: 'Conversaciones', title: 'Conversaciones', crumb: 'Chats con clientes y leads', badge: () => window.MOMA_getConversaciones().length },
     { id: 'incidencias', icon: '🛠️', label: 'Incidencias', title: 'Registro de incidencias', crumb: 'Problemas del centro' },
-    { id: 'alertas', icon: '🚨', label: 'Alertas', title: 'Alertas del centro', crumb: 'Detecta problemas rápido', badge: () => D.impagos.length + D.ocupacion.bajaOcupacion.length }
+    { id: 'alertas', icon: '🚨', label: 'Alertas', title: 'Alertas del centro', crumb: 'Detecta problemas rápido', badge: () => D.impagos.length + D.ocupacion.bajaOcupacion.length },
+    { g: 'Ayuda' },
+    { id: 'manual', icon: '📘', label: 'Manual', title: 'Manual de uso', crumb: 'Guía rápida para entender la demo' }
   ];
 
   function buildNav() {
@@ -558,6 +560,68 @@
         `<div class="table-wrap"><table><thead><tr><th>Servicio</th><th>Facturación</th></tr></thead><tbody>
           ${servBajos.map(s => `<tr><td>${s.servicio}</td><td>${euros(s.importe)}</td></tr>`).join('')}
         </tbody></table></div>`)}`;
+  };
+
+  /* ---------- MANUAL ---------- */
+  SECTIONS.manual = function (el) {
+    el.innerHTML = `
+      <p class="lead-in">Guía rápida para entender qué contiene esta demo, cómo se usa y qué datos son simulados. El manual completo también está guardado como archivo Markdown en el repositorio.</p>
+      <div class="manual-hero card">
+        <div>
+          <span class="tag green">Demo sin base de datos</span>
+          <h2>MOMA CRM centraliza dirección, clientes, ocupación, equipo, negocio y atención.</h2>
+          <p>Todos los datos que ves son ficticios y sirven para enseñar el funcionamiento antes de conectar formularios, facturación, APP MOMA o Virtuagym.</p>
+        </div>
+        <a class="manual-link" href="MANUAL_CLIENTE.md" target="_blank" rel="noreferrer">Abrir manual .md</a>
+      </div>
+
+      <div class="grid g-3">
+        <div class="card manual-card">
+          <h3>Acceso</h3>
+          <p>Usuario: <b>admin@momaep.es</b></p>
+          <p>Contraseña: <b>moma2025</b></p>
+          <p>También funciona <b>direccion@momaep.es</b> con la misma contraseña.</p>
+        </div>
+        <div class="card manual-card">
+          <h3>Rutas principales</h3>
+          <p><b>/</b> Login del CRM</p>
+          <p><b>/app.html</b> Panel interno</p>
+          <p><b>/chat.html</b> Chatbot público</p>
+        </div>
+        <div class="card manual-card">
+          <h3>Qué se guarda</h3>
+          <p>La demo no guarda datos reales. Las conversaciones nuevas del chatbot se guardan solo en el navegador para poder enseñarlas en Conversaciones.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h3>Secciones del CRM</h3></div>
+        <div class="manual-grid">
+          <div><b>Cuadro de Mando</b><span>KPIs de dirección, crecimiento, ocupación, facturación y Test MOMA.</span></div>
+          <div><b>Clientes</b><span>Listado con entrenador, plan, servicios, cuota, horario, estado y pago.</span></div>
+          <div><b>Lista de espera</b><span>Personas interesadas, orden de llegada, servicio, horario y origen.</span></div>
+          <div><b>Ocupación</b><span>Plazas, reservas, clases llenas, franjas fuertes y clases con baja ocupación.</span></div>
+          <div><b>Equipo</b><span>Rendimiento por entrenador: ocupación, bajas, protocolos y valoración.</span></div>
+          <div><b>Servicios Mind/Body</b><span>Nutrición, BodyMind, Mindfulness, talleres y conversión desde entrenamiento.</span></div>
+          <div><b>Facturación</b><span>Ingresos, gastos, beneficio, margen y facturación por servicio.</span></div>
+          <div><b>Marketing</b><span>Leads, nuevos clientes, conversión, origen de clientes y motivos de baja.</span></div>
+          <div><b>Conversaciones</b><span>Inbox de chats con leads y clientes, incluyendo el chatbot público.</span></div>
+          <div><b>Incidencias</b><span>Registro de problemas del centro con prioridad, responsable y estado.</span></div>
+          <div><b>Alertas</b><span>Impagos, baja ocupación, entrenadores con muchas bajas y servicios con baja venta.</span></div>
+        </div>
+      </div>
+
+      <div class="grid g-2">
+        <div class="card manual-card">
+          <h3>Cómo funciona el chatbot</h3>
+          <p>El chatbot vive en <b>/chat.html</b>. Permite simular preguntas de clientes sobre altas, horarios, reservas, bajas, lista de espera, servicios Mind/Body e impagos.</p>
+          <p>Las conversaciones nuevas aparecen automáticamente en el apartado <b>Conversaciones</b> de este CRM.</p>
+        </div>
+        <div class="card manual-card">
+          <h3>Qué faltaría en la versión real</h3>
+          <p>Conectar base de datos, formularios, facturación, usuarios reales, APP MOMA o Virtuagym y un chatbot con información real del centro.</p>
+        </div>
+      </div>`;
   };
 
   /* =====================================================
