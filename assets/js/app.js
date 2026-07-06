@@ -19,7 +19,7 @@
   const euros = n => Math.round(n).toLocaleString('es-ES') + ' €';
   const num = n => Number(n).toLocaleString('es-ES');
   const initials = s => s.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  const PALETTE = ['#6d28d9', '#2563eb', '#16a34a', '#d97706', '#dc2626', '#0d9488', '#db2777', '#4f46e5'];
+  const PALETTE = ['#84cc16', '#0d9488', '#2563eb', '#f59e0b', '#e11d48', '#7c3aed', '#0ea5e9', '#65a30d'];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /* -------- Chart.js defaults -------- */
@@ -189,14 +189,14 @@
     new Chart(gid('ch-altasbajas'), {
       type: 'bar',
       data: { labels: D.meses, datasets: [
-        { label: 'Altas', data: S.map(m => m.altas), backgroundColor: PALETTE[2], borderRadius: 4 },
-        { label: 'Bajas', data: S.map(m => m.bajas), backgroundColor: PALETTE[4], borderRadius: 4 }
+        { label: 'Altas', data: S.map(m => m.altas), backgroundColor: '#84cc16', borderRadius: 4 },
+        { label: 'Bajas', data: S.map(m => m.bajas), backgroundColor: '#e11d48', borderRadius: 4 }
       ] },
       options: baseOpts()
     });
     new Chart(gid('ch-ochorario'), {
       type: 'bar',
-      data: { labels: o.porHorario.map(h => h.hora), datasets: [{ label: 'Ocupación %', data: o.porHorario.map(h => h.ocupacion), backgroundColor: o.porHorario.map(h => h.ocupacion >= 85 ? PALETTE[2] : h.ocupacion >= 60 ? PALETTE[3] : PALETTE[4]), borderRadius: 4 }] },
+      data: { labels: o.porHorario.map(h => h.hora), datasets: [{ label: 'Ocupación %', data: o.porHorario.map(h => h.ocupacion), backgroundColor: o.porHorario.map(h => h.ocupacion >= 85 ? '#65a30d' : h.ocupacion >= 60 ? '#f59e0b' : '#e11d48'), borderRadius: 4 }] },
       options: baseOpts({ legend: false, max: 100 })
     });
     new Chart(gid('ch-ocfranja'), {
@@ -221,7 +221,7 @@
     });
     new Chart(gid('ch-testmoma'), {
       type: 'radar',
-      data: { labels: D.testMoma.map(t => t.variable), datasets: [{ label: 'Mejora media %', data: D.testMoma.map(t => t.mejora), backgroundColor: 'rgba(109,40,217,.18)', borderColor: PALETTE[0], borderWidth: 2, pointBackgroundColor: PALETTE[0] }] },
+      data: { labels: D.testMoma.map(t => t.variable), datasets: [{ label: 'Mejora media %', data: D.testMoma.map(t => t.mejora), backgroundColor: 'rgba(132,204,22,.20)', borderColor: PALETTE[0], borderWidth: 2, pointBackgroundColor: PALETTE[0] }] },
       options: radarOpts()
     });
   };
@@ -333,7 +333,7 @@
           </div>
         </div>
       </div>`;
-    new Chart(gid('oc-h'), { type: 'bar', data: { labels: o.porHorario.map(h => h.hora), datasets: [{ label: 'Ocupación %', data: o.porHorario.map(h => h.ocupacion), backgroundColor: o.porHorario.map(h => h.ocupacion >= 85 ? PALETTE[2] : h.ocupacion >= 60 ? PALETTE[3] : PALETTE[4]), borderRadius: 4 }] }, options: baseOpts({ legend: false, max: 100 }) });
+    new Chart(gid('oc-h'), { type: 'bar', data: { labels: o.porHorario.map(h => h.hora), datasets: [{ label: 'Ocupación %', data: o.porHorario.map(h => h.ocupacion), backgroundColor: o.porHorario.map(h => h.ocupacion >= 85 ? '#65a30d' : h.ocupacion >= 60 ? '#f59e0b' : '#e11d48'), borderRadius: 4 }] }, options: baseOpts({ legend: false, max: 100 }) });
     new Chart(gid('oc-d'), { type: 'bar', data: { labels: o.porDia.map(d => d.dia), datasets: [{ label: 'Ocupación %', data: o.porDia.map(d => d.ocupacion), backgroundColor: PALETTE[1], borderRadius: 4 }] }, options: baseOpts({ legend: false, max: 100 }) });
     new Chart(gid('oc-e'), { type: 'bar', data: { labels: D.entrenadores.map(e => e.nombre.split(' ')[0]), datasets: [{ label: 'Ocupación %', data: D.entrenadores.map(e => e.ocupacion), backgroundColor: D.entrenadores.map(e => e.color), borderRadius: 4 }] }, options: baseOpts({ legend: false, indexAxis: 'y', max: 100 }) });
   };
@@ -428,7 +428,7 @@
     new Chart(gid('sv-clientes'), { type: 'bar', data: { labels: sm.clientesPorServicio.map(s => s.servicio), datasets: [{ label: 'Clientes', data: sm.clientesPorServicio.map(s => s.clientes), backgroundColor: PALETTE, borderRadius: 4 }] }, options: baseOpts({ legend: false }) });
     new Chart(gid('sv-sesiones'), { type: 'bar', data: { labels: sm.sesionesMind.map(s => s.sesion), datasets: [{ label: 'Ocupación %', data: sm.sesionesMind.map(s => s.ocupacion), backgroundColor: PALETTE[0], borderRadius: 4 }] }, options: baseOpts({ legend: false, indexAxis: 'y', max: 100 }) });
     new Chart(gid('sv-evo'), { type: 'line', data: { labels: D.meses, datasets: [{ label: 'Clientes Mind', data: D.serieMensual.map(m => m.clientesMind), borderColor: PALETTE[0], backgroundColor: fill('sv-evo', PALETTE[0]), fill: true, tension: .35, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5 }] }, options: baseOpts({ legend: false }) });
-    new Chart(gid('sv-test'), { type: 'radar', data: { labels: D.testMoma.map(t => t.variable), datasets: [{ label: 'Mejora %', data: D.testMoma.map(t => t.mejora), backgroundColor: 'rgba(109,40,217,.18)', borderColor: PALETTE[0], borderWidth: 2, pointBackgroundColor: PALETTE[0] }] }, options: radarOpts() });
+    new Chart(gid('sv-test'), { type: 'radar', data: { labels: D.testMoma.map(t => t.variable), datasets: [{ label: 'Mejora %', data: D.testMoma.map(t => t.mejora), backgroundColor: 'rgba(132,204,22,.20)', borderColor: PALETTE[0], borderWidth: 2, pointBackgroundColor: PALETTE[0] }] }, options: radarOpts() });
   };
 
   /* ---------- MARKETING ---------- */

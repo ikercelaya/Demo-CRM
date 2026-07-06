@@ -11,8 +11,8 @@
   // Cuentas de demo. En una implementación real esto se validaría
   // en el servidor contra una base de datos con contraseñas cifradas.
   const CUENTAS = [
-    { email: 'admin@momaep.es',     pass: 'moma2025', nombre: 'Aaron Valora', rol: 'Dirección' },
-    { email: 'direccion@momaep.es', pass: 'moma2025', nombre: 'Dirección MOMA', rol: 'Dirección' }
+    { email: 'admin@momaep.es',     pass: 'moma2025', nombre: 'Administrador', rol: 'Dirección' },
+    { email: 'direccion@momaep.es', pass: 'moma2025', nombre: 'Administrador', rol: 'Dirección' }
   ];
 
   const KEY = 'moma_session';
