@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOMA CRM · Cuadro de Mando</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Fuente cargada de forma NO bloqueante: si Google Fonts no está disponible,
+       la app se muestra igual con la fuente del sistema. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>" />
+  <!-- Chart.js incluido localmente (sin dependencias externas en tiempo de ejecución) -->
+  <script src="assets/js/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">MOMA<span>·</span>CRM</div>
+      <nav class="nav" id="nav"><!-- inyectado por app.js --></nav>
+      <div class="user">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="meta">
+          <b id="userName">Dirección</b>
+          <span id="userRole">MOMA</span>
+        </div>
+        <button onclick="MOMA_AUTH.logout()">Salir</button>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <div class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:14px">
+          <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Menú">☰</button>
+          <div>
+            <h1 id="pageTitle">Cuadro de Mando</h1>
+            <div class="crumb" id="pageCrumb">Visión general del centro · Junio 2026</div>
+          </div>
+        </div>
+        <div class="actions">
+          <span class="pill">📅 Junio 2026</span>
+          <a class="pill live" href="chat.html" target="_blank">Chatbot en vivo</a>
+        </div>
+      </header>
+
+      <div class="content" id="content">
+        <section class="section" id="sec-dashboard"></section>
+        <section class="section" id="sec-clientes"></section>
+        <section class="section" id="sec-espera"></section>
+        <section class="section" id="sec-ocupacion"></section>
+        <section class="section" id="sec-equipo"></section>
+        <section class="section" id="sec-facturacion"></section>
+        <section class="section" id="sec-servicios"></section>
+        <section class="section" id="sec-marketing"></section>
+        <section class="section" id="sec-conversaciones"></section>
+        <section class="section" id="sec-incidencias"></section>
+        <section class="section" id="sec-alertas"></section>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

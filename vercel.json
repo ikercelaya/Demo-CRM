@@ -1,25 +1,11 @@
 {
-  "version": 2,
-  "outputDirectory": "public",
-  "rewrites": [
-    {
-      "source": "/admin",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/chat",
-      "destination": "/chat.html"
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "trailingSlash": false,
   "headers": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Demo-Mode",
-          "value": "MOMA CRM demo without database"
-        }
-      ]
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     }
   ]
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOMA CRM · Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-hero">
+      <div class="brand">MOMA<span>·</span>CRM</div>
+      <div>
+        <h1>Todo tu centro,<br />en un solo cuadro de mando.</h1>
+        <p>Clientes, ocupación, equipo, facturación y conversaciones. Desde que un cliente entra hasta que sale, automatizado y a la vista.</p>
+        <div class="stats">
+          <div><b>186</b><span>Usuarios activos</span></div>
+          <div><b>62.000 €</b><span>Facturación mensual</span></div>
+          <div><b>84 %</b><span>Ocupación media</span></div>
+        </div>
+      </div>
+      <div class="foot">Demo · Datos ficticios · www.momaep.es</div>
+    </div>
+
+    <div class="login-form-side">
+      <form class="login-card" id="loginForm" autocomplete="off">
+        <h2>Bienvenido de nuevo 👋</h2>
+        <p class="sub">Accede al panel de dirección de MOMA.</p>
+
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" placeholder="tú@momaep.es" required />
+        </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="••••••••" required />
+        </div>
+        <button class="btn-primary" type="submit">Entrar al panel</button>
+        <div class="login-error" id="loginError"></div>
+
+        <div class="login-hint">
+          <b>🔑 Credenciales de demostración</b>
+          Usuario: <b style="display:inline">admin@momaep.es</b><br />
+          Contraseña: <b style="display:inline">moma2025</b>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const pass = document.getElementById('password').value;
+      const err = document.getElementById('loginError');
+      if (MOMA_AUTH.login(email, pass)) {
+        window.location.href = 'app.html';
+      } else {
+        err.textContent = 'Credenciales incorrectas. Prueba con admin@momaep.es / moma2025';
+      }
+    });
+    // si ya está autenticado, saltar al panel
+    if (MOMA_AUTH.isLogged()) window.location.href = 'app.html';
+  </script>
+</body>
+</html>

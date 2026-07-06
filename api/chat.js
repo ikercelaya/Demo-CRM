@@ -1,143 +1,189 @@
-const serviceHints = {
-  entrenamiento: "El entrenamiento personal en MOMA se trabaja con grupos reducidos, adaptación al nivel de cada persona y seguimiento técnico.",
-  bodymind: "BodyMind está pensado para recuperación, relajación, movilidad y conexión cuerpo-mente.",
-  nutrimind: "NutriMind acompaña los objetivos físicos desde nutrición consciente y hábitos sostenibles.",
-  energymind: "EnergyMind se orienta a energía, movimiento consciente y bienestar.",
-  mind360: "Mind360 trabaja desarrollo personal y bienestar emocional como complemento al entrenamiento."
-};
+/* =============================================================
+   MOMA CRM — Endpoint del chatbot (Vercel Serverless Function)
+   -------------------------------------------------------------
+   Asistente conversacional sencillo, basado en reglas (sin IA
+   externa ni claves de API), pensado para la demo. Recibe el
+   historial de mensajes y devuelve la respuesta del asistente.
 
-module.exports = function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+   POST /api/chat
+   body: { messages: [{from:'user'|'bot', text}], name: string }
+   ->    { reply, name, estado }
+   ============================================================= */
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
+const normaliza = (s) =>
+  (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
 
-  if (req.method === "GET") {
-    return res.status(200).json({
-      ok: true,
-      endpoint: "/api/chat",
-      demo: true,
-      message: "Endpoint de chat demo para MOMA. Envia POST con { message, sessionId, history }."
-    });
-  }
+const contiene = (t, arr) => arr.some((k) => t.includes(k));
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+// Motor de intención basado en palabras clave
+function responder(texto, nombre) {
+  const t = normaliza(texto);
+  const n = nombre ? nombre.split(' ')[0] : '';
+  const saludo = n ? n : '';
 
-  const body = typeof req.body === "string" ? safeJson(req.body) : req.body || {};
-  const message = String(body.message || "").trim();
-  const lower = normalize(message);
+  // Detección de teléfono
+  const tel = (texto.match(/(\+?\d[\d\s]{7,}\d)/) || [])[0];
 
-  if (!message) {
-    return res.status(200).json({
-      reply: "Hola, soy el asistente de MOMA. ¿Me indicas tu nombre y qué servicio te interesa?",
-      intent: "Inicio",
-      status: "Nuevo chat",
-      nextAction: "Pedir nombre y servicio"
-    });
-  }
-
-  const response = buildResponse(lower);
-  return res.status(200).json({
-    ...response,
-    sessionId: body.sessionId || null,
-    timestamp: new Date().toISOString(),
-    demo: true
-  });
-};
-
-function buildResponse(text) {
-  if (containsAny(text, ["precio", "tarifa", "cuota", "coste", "pagar"])) {
+  if (contiene(t, ['precio', 'precios', 'cuesta', 'tarifa', 'cuota', 'cuanto vale', 'coste', 'pagar al mes'])) {
     return {
-      intent: "Precios",
-      status: "Lead caliente",
-      nextAction: "Enviar planes y agendar valoración",
-      reply: "Para orientarte bien, el equipo necesita saber cuántos días quieres entrenar y si buscas solo entrenamiento o algún servicio complementario. Te puedo dejar como lead para que te contacten con la opción más adecuada."
+      reply:
+        'Trabajamos con cuotas mensuales según los días de entrenamiento por semana (2, 3, 4 días o modalidad libre), con entrenador asignado y grupos reducidos. A partir de ahí puedes añadir servicios como Nutrición, BodyMind o Mindfulness. ¿Quieres que una persona del equipo te llame para darte el detalle y ver disponibilidad?',
+      estado: 'Cita solicitada'
     };
   }
-
-  if (containsAny(text, ["horario", "plaza", "tarde", "mañana", "mediodia", "mediodía", "lista de espera"])) {
+  if (contiene(t, ['horario', 'abre', 'abren', 'a que hora', 'que hora', 'abierto'])) {
     return {
-      intent: "Lista de espera",
-      status: "Pendiente hueco",
-      nextAction: "Revisar disponibilidad por franja y ofrecer hueco",
-      reply: "Perfecto. Las plazas se gestionan por disponibilidad y preferencia horaria. Dime qué días puedes entrenar, si prefieres mañana, mediodía o tarde, y lo dejamos preparado para que el equipo revise huecos."
+      reply:
+        'Abrimos de lunes a viernes de 07:00 a 22:00 y sábados de 09:00 a 14:00. Las clases son en grupos reducidos por franjas (mañana, mediodía y tarde). ¿Qué franja te encajaría mejor?',
+      estado: 'Nueva'
     };
   }
-
-  if (containsAny(text, ["baja", "cancelar", "dejar", "pausar", "reserva"])) {
+  if (contiene(t, ['apunt', 'inscrib', 'alta', 'registr', 'empezar', 'unirme', 'probar', 'prueba', 'plaza', 'quiero entrenar', 'informacion'])) {
     return {
-      intent: "Baja o reserva",
-      status: "Seguimiento administración",
-      nextAction: "Enviar formulario de baja, reserva o modificación",
-      reply: "Puedo ayudarte a dejarlo registrado. Indica si quieres baja, reserva de plaza o cambio de horario, y el equipo lo revisará para actualizar tu ficha y la planificación mensual."
+      reply:
+        `${saludo ? '¡Genial, ' + saludo + '! ' : '¡Genial! '}Ahora mismo trabajamos con grupos reducidos y a veces hay lista de espera por franjas. Puedo dejarte anotado/a en la lista de espera y reservarte una sesión de valoración gratuita. ¿Me confirmas un teléfono de contacto y la franja que prefieres (mañana / mediodía / tarde)?`,
+      estado: 'Cita solicitada'
     };
   }
-
-  if (containsAny(text, ["bodymind", "nutrimind", "energymind", "mind360", "mind", "nutricion", "nutrición"])) {
-    const service = detectService(text);
+  if (contiene(t, ['nutric', 'dieta', 'comer', 'alimenta'])) {
     return {
-      intent: "Servicios Mind",
-      status: "Cita valoración",
-      nextAction: "Agendar valoración de servicio complementario",
-      reply: `${serviceHints[service] || "MOMA combina entrenamiento, bienestar y servicios complementarios."} Si quieres, dime tu objetivo principal y tu horario preferido para que el equipo te proponga la mejor combinación.`
+      reply:
+        'El servicio de Nutrición incluye un plan personalizado y seguimiento con nuestra nutricionista, y se puede combinar con el entrenamiento. ¿Quieres que te contacte para una primera valoración?',
+      estado: 'Cita solicitada'
     };
   }
-
-  if (containsAny(text, ["lesion", "lesión", "dolor", "limitacion", "limitación", "recuperacion", "recuperación"])) {
+  if (contiene(t, ['mindful', 'mind', 'medita', 'bodymind', 'body mind', 'yoga', 'bowspring', 'estres', 'relaj'])) {
     return {
-      intent: "Adaptación por lesión",
-      status: "Cita valoración",
-      nextAction: "Agendar valoración inicial con entrenador",
-      reply: "En MOMA adaptan el entrenamiento al nivel y a posibles limitaciones. Para hacerlo con seguridad, lo ideal es una valoración inicial. Dime qué te ocurre y en qué horario podrías venir."
+      reply:
+        'Nuestra zona Mind ofrece Mindfulness, grupos de desarrollo y BowSpring: sesiones reducidas con colaboradoras especializadas para trabajar movilidad, respiración y gestión del estrés. ¿Te reservo una sesión de prueba?',
+      estado: 'Cita solicitada'
     };
   }
-
-  if (containsAny(text, ["hola", "buenas", "informacion", "información", "apuntarme", "alta"])) {
+  if (contiene(t, ['reserva plaza', 'reservar plaza', 'congelar', 'reservar mi plaza', 'guardar plaza', 'me voy de viaje', 'vacaciones'])) {
     return {
-      intent: "Alta",
-      status: "Nuevo lead",
-      nextAction: "Pedir datos de contacto y preferencia horaria",
-      reply: "Genial. Para ayudarte con el alta necesito nombre, teléfono o email, servicio que te interesa y horario preferido. Con eso el equipo puede revisar disponibilidad y contactarte."
+      reply:
+        'Puedes reservar tu plaza un máximo de 2 meses al año. Dejo registrada tu solicitud y administración te confirmará las fechas. ¿Para qué mes lo necesitas?',
+      estado: 'Cita solicitada'
     };
   }
-
+  if (contiene(t, ['cambiar horario', 'cambio de horario', 'cambio horario', 'modificar', 'otro horario', 'cambiar mi hora', 'aumentar dias', 'reducir dias'])) {
+    return {
+      reply:
+        'Puedo tramitar tu cambio de horario o de días de entrenamiento. ¿Qué cambio necesitas y a partir de qué día? Tu entrenador lo confirmará.',
+      estado: 'Cita solicitada'
+    };
+  }
+  if (contiene(t, ['baja', 'darme de baja', 'cancelar', 'dar de baja', 'anular'])) {
+    return {
+      reply:
+        `Lamento que quieras dejarnos${saludo ? ', ' + saludo : ''}. Puedo registrar tu solicitud de baja. ¿Me indicas el motivo (mudanza, lesión, precio, falta de tiempo u otros)? Administración te confirmará la fecha efectiva.`,
+      estado: 'Baja solicitada'
+    };
+  }
+  if (contiene(t, ['ubica', 'donde estais', 'donde estan', 'direccion', 'como llego', 'donde os encuentro'])) {
+    return {
+      reply:
+        'Estamos en el centro MOMA. Puedes ver la dirección exacta y cómo llegar en nuestra web www.momaep.es. ¿Quieres que te reserve una visita para conocer las instalaciones?',
+      estado: 'Nueva'
+    };
+  }
+  if (contiene(t, ['recibo', 'impago', 'factura', 'devuelto', 'pago pendiente', 'no me han cobrado', 'cobro'])) {
+    return {
+      reply:
+        'Puedo avisar a administración para revisar tu recibo. Podrás regularizarlo en recepción o por transferencia. ¿Quieres que te contacten con los detalles?',
+      estado: 'Impago'
+    };
+  }
+  if (tel) {
+    return {
+      reply:
+        `¡Perfecto! He anotado tu teléfono ${tel}. Te contactamos en menos de 48h para darte disponibilidad y cerrar tu sesión de valoración. ¿Hay algo más en lo que pueda ayudarte?`,
+      estado: 'Cita solicitada'
+    };
+  }
+  if (contiene(t, ['gracias', 'nada mas', 'perfecto', 'ok', 'vale', 'genial', 'de acuerdo'])) {
+    return {
+      reply: `¡A ti${saludo ? ', ' + saludo : ''}! Cualquier cosa aquí me tienes. Te esperamos en MOMA 💪`,
+      estado: 'Resuelta'
+    };
+  }
+  // fallback
   return {
-    intent: "Consulta inicial",
-    status: "Nuevo chat",
-    nextAction: "Revisar conversación desde CRM",
-    reply: "Gracias por contarme. Para que el equipo de MOMA pueda ayudarte, dime tu nombre, teléfono o email, el servicio que te interesa y tu horario preferido."
+    reply:
+      `Puedo ayudarte con información sobre entrenamiento, precios, horarios, servicios Mind/Nutrición, altas, cambios de horario o bajas. ${saludo ? saludo + ', ¿' : '¿'}qué necesitas exactamente? Si lo prefieres, déjame tu teléfono y te llamamos.`,
+    estado: 'Nueva'
   };
 }
 
-function containsAny(text, terms) {
-  return terms.some((term) => text.includes(term));
+// Extrae un nombre a partir de frases como "Hola, soy Laura Gómez"
+function extraerNombre(txt) {
+  let s = (txt || '').trim();
+  s = s.replace(/^(hola|buenas|buenos dias|buenos días|buenas tardes|buenas noches|hey|hi|holaa+|que tal|qué tal)[\s,!.¡]*/i, '');
+  s = s.replace(/^(me llamo|mi nombre es|yo soy|soy)[\s]+/i, '');
+  s = s.replace(/[.,!¡¿?]+$/g, '').trim();
+  // Capitaliza cada palabra
+  return s
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
-function detectService(text) {
-  if (text.includes("bodymind")) return "bodymind";
-  if (text.includes("nutrimind") || text.includes("nutricion") || text.includes("nutrición")) return "nutrimind";
-  if (text.includes("energymind")) return "energymind";
-  if (text.includes("mind360")) return "mind360";
-  if (text.includes("entren")) return "entrenamiento";
-  return "entrenamiento";
-}
+function procesar(body) {
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  let name = (body.name || '').trim();
+  const userMsgs = messages.filter((m) => m && m.from === 'user');
+  const lastUser = userMsgs.length ? userMsgs[userMsgs.length - 1].text : '';
 
-function normalize(value) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function safeJson(value) {
-  try {
-    return JSON.parse(value);
-  } catch (error) {
-    return {};
+  // Primera intervención del usuario: se interpreta como su nombre
+  if (!name) {
+    const posible = (lastUser || '').trim();
+    // Si trae una pregunta/palabra clave clara, respondemos a la intención sin exigir nombre
+    const t = normaliza(posible);
+    const esPregunta = /[?¿]/.test(posible);
+    const pareceIntencion = contiene(t, ['precio', 'horario', 'apunt', 'inscrib', 'nutric', 'mindful', 'baja', 'reserva', 'ubica', 'clase']);
+    if (posible && !esPregunta && !pareceIntencion && posible.length <= 40) {
+      name = extraerNombre(posible);
+      if (name && name.length >= 2) {
+        return {
+          reply: `¡Un placer, ${name.split(' ')[0]}! ¿En qué puedo ayudarte? Puedes preguntarme por entrenamiento, precios, horarios o nuestros servicios (Nutrición, BodyMind, Mindfulness).`,
+          name,
+          estado: 'Nueva'
+        };
+      }
+    }
+    // Si preguntó algo directamente o no dio un nombre válido
+    const r = responder(lastUser, '');
+    return { reply: r.reply, name: '', estado: r.estado };
   }
+
+  const r = responder(lastUser, name);
+  return { reply: r.reply, name, estado: r.estado };
 }
+
+module.exports = function handler(req, res) {
+  if (req.method !== 'POST') {
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify({ error: 'Método no permitido. Usa POST.' }));
+    return;
+  }
+  let body = req.body;
+  try {
+    if (typeof body === 'string') body = JSON.parse(body || '{}');
+    if (!body) body = {};
+  } catch (e) {
+    body = {};
+  }
+  const out = procesar(body);
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(JSON.stringify(out));
+};
+
+// Exportado para pruebas locales en Node
+module.exports.procesar = procesar;
+module.exports.responder = responder;

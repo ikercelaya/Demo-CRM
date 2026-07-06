@@ -2,11 +2,13 @@
   "name": "moma-crm-demo",
   "version": "1.0.0",
   "private": true,
-  "description": "Demo CRM sin base de datos para MOMA Entrenamiento Personal.",
+  "description": "CRM demo para gimnasio (MOMA): cuadro de mando, clientes, ocupación, equipo, facturación, marketing, conversaciones y chatbot. Sin base de datos — datos ficticios de prueba.",
   "scripts": {
     "dev": "vercel dev",
-    "start": "vercel dev",
-    "build": "echo Static demo ready"
+    "test": "node scripts/test-chat.js"
   },
-  "dependencies": {}
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
 }
